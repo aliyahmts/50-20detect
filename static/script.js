@@ -1,54 +1,29 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const fileInput = document.getElementById("imgUpload");
-    const detectBtn = document.getElementById("detectBtn");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const resultList = document.getElementById("resultList");
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files[0]) return;
 
-    let selectedFile = null;
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
 
-    // Preview image on canvas
-    fileInput.addEventListener("change", () => {
-        selectedFile = fileInput.files[0];
-
-        if (selectedFile) {
-            const img = new Image();
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = URL.createObjectURL(selectedFile);
-        }
+    const response = await fetch('/detect', {
+        method: 'POST',
+        body: formData
     });
 
-    // Send to Flask
-    detectBtn.addEventListener("click", () => {
-        if (!selectedFile) {
-            alert("Please upload an image first!");
-            return;
-        }
+    const data = await response.json();
+    const resultsDiv = document.getElementById('results');
 
-        const formData = new FormData();
-        formData.append("image", selectedFile);
-
-        fetch("/upload", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-
-            // Show result
-            resultList.innerHTML = "";
-            const li = document.createElement("li");
-            li.textContent = data.result;
-            resultList.appendChild(li);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error processing image");
-        });
-    });
+    if (data.success) {
+        resultsDiv.innerHTML = `
+            <h2>Results</h2>
+            <p>50 Peso Bills: <strong>${data.count_50}</strong></p>
+            <p>20 Peso Bills: <strong>${data.count_20}</strong></p>
+            <p><strong>Total: PHP ${data.total_value}</strong></p>
+            <img src="${data.annotated_image}" alt="Detection" style="max-width: 600px;">
+        `;
+    } else {
+        resultsDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+    }
 });

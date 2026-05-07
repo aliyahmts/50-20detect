@@ -4,25 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="/static/style.css">
     
     <title>Main</title>
 </head>
 <body>
-    <h1>50-20 Bill/Coin Detection</h1>
+ <h1>20/50 Peso Bill Detector</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" accept="image/*">
+        <button type="submit">Detect Bills</button>
+    </form>
 
-    <input type="file" id="imgUpload" accept="image/*">
+    <div id="results"></div>
 
-    <div class="canvas-container">
-        <canvas id="canvas"></canvas>
-    </div>
-
-    <button id="detectBtn">Detect Object</button>
-
-    <!-- Results -->
-    <ul id="resultList"></ul>
-
-    <!-- Load script LAST -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="/static/script.js"></script>
 </body>
 </html>
