@@ -90,7 +90,7 @@ with tab2:
     video_file = st.file_uploader("Upload video", type=["mp4","avi","mov","mkv"])
     
     if video_file and st.button("Process Video", type="primary"):
-        with st.spinner("Processing video..."):
+        with st.spinner("Processing video... This may take a while"):
             tfile = tempfile.NamedTemporaryFile(delete=False)
             tfile.write(video_file.read())
             
@@ -102,36 +102,54 @@ with tab2:
             output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
             out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
             
-            count_50 = count_20 = 0
+            count_50 = 0
+            count_20 = 0
+            frame_count = 0
             
             while True:
                 ret, frame = cap.read()
                 if not ret:
                     break
                     
+                frame_count += 1
+                
                 results = model(frame, verbose=False, conf=CONFIDENCE_THRESHOLD)
                 annotated = frame.copy()
                 
+                # Count only once per frame (but avoid overcounting same bill)
+                seen_50 = False
+                seen_20 = False
+                
                 for box in results[0].boxes:
                     class_name = labels[int(box.cls.item())]
-                    if is_valid_bill(class_name):
+                    conf = box.conf.item()
+                    
+                    if is_valid_bill(class_name) and conf >= CONFIDENCE_THRESHOLD:
                         xyxy = box.xyxy.cpu().numpy().squeeze().astype(int)
                         color = (0, 255, 0) if "50" in class_name else (0, 200, 255)
                         cv2.rectangle(annotated, (xyxy[0], xyxy[1]), (xyxy[2], xyxy[3]), color, 3)
-                        if class_name == "new_50peso_bill":
+                        label = f"{class_name.replace('new_', '').replace('_peso_bill', ' Peso')}: {conf:.2f}"
+                        cv2.putText(annotated, label, (xyxy[0], xyxy[1]-10),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                        
+                        if class_name == "new_50peso_bill" and not seen_50:
                             count_50 += 1
-                        else:
+                            seen_50 = True
+                        elif class_name == "new_20peso_bill" and not seen_20:
                             count_20 += 1
+                            seen_20 = True
+                
                 out.write(annotated)
             
             cap.release()
             out.release()
             
-            total = count_50*50 + count_20*20
-            st.success("Video processed!")
+            total_value = (count_50 * 50) + (count_20 * 20)
+            
+            st.success("Video processed successfully!")
             st.video(output_path)
-            st.write(f"**Total Value:** PHP {total}")
-            st.write(f"50₱: {count_50} | 20₱: {count_20}")
+            st.metric("Total Value", f"PHP {total_value:,}")
+            st.write(f"**50 Peso Bills:** {count_50} | **20 Peso Bills:** {count_20}")
 
 with tab3:
     st.header("Live Camera")
