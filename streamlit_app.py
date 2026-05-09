@@ -17,16 +17,20 @@ def load_model():
 
 model = load_model()
 labels = model.names
-CONFIDENCE_THRESHOLD = 0.83
+CONFIDENCE_THRESHOLD = 0.60
 
 def is_valid_bill(class_name):
     return class_name in ["new_50peso_bill", "new_20peso_bill"]
 
 def process_image(image):
-    img_array = np.array(image)
+    # Convert PIL to OpenCV format (BGR)
+    img_array = np.array(image.convert("RGB"))
+    img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)   # Important fix
+    
     results = model(img_array, verbose=False, conf=CONFIDENCE_THRESHOLD)
     
-    count_50 = count_20 = 0
+    count_50 = 0
+    count_20 = 0
     annotated = img_array.copy()
     
     for box in results[0].boxes:
@@ -40,17 +44,19 @@ def process_image(image):
             cv2.rectangle(annotated, (xyxy[0], xyxy[1]), (xyxy[2], xyxy[3]), color, 3)
             label = f"{class_name.replace('new_', '').replace('_peso_bill', ' Peso')}: {conf:.2f}"
             cv2.putText(annotated, label, (xyxy[0], xyxy[1]-10),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2)
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
             
             if class_name == "new_50peso_bill":
                 count_50 += 1
             else:
                 count_20 += 1
-                
+    
+    # Convert back to RGB for Streamlit display
+    annotated = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
     return Image.fromarray(annotated), count_50, count_20
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["📸 Image Detection", "🎥 Video Processing", "📹 Live Camera"])
+tab1, tab2, tab3 = st.tabs(["Image Detection", "Video Processing", "Live Camera"])
 
 with tab1:
     st.header("Multiple Image Detection")
