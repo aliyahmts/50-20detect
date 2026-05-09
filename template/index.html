@@ -10,7 +10,6 @@
     <div class="container">
         <h1>New 50/20 Peso Bill Detector</h1>
 
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab(0)">Image Detection</button>
             <button class="tab-btn" onclick="showTab(1)">Video Processing</button>
@@ -19,24 +18,26 @@
 
         <!-- Image Tab -->
         <div id="tab0" class="tab-content">
-            <input type="file" id="imageInput" accept="image/*">
-            <button onclick="uploadImage()">Detect Bills</button>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            <button onclick="uploadImages()">Detect Bills</button>
+            
+            <div id="previewArea" class="preview-container"></div>
+
             <div id="imageResult" class="result"></div>
         </div>
 
-        <!-- Video Tab -->
+        <!-- Video & Webcam tabs remain the same -->
         <div id="tab1" class="tab-content" style="display: none;">
             <input type="file" id="videoInput" accept="video/*">
             <button onclick="uploadVideo()">Process Video</button>
             <div id="videoResult" class="result"></div>
         </div>
 
-        <!-- Live Webcam Tab -->
         <div id="tab2" class="tab-content" style="display: none;">
             <div class="stream-container">
                 <img id="webcamStream" src="" alt="Live Detection">
             </div>
-            <p><strong>Live Detection Active</strong> • Point your camera at the bills</p>
+            <p><strong>Live Detection Active</strong> • Only 50 & 20 Peso bills will be highlighted</p>
         </div>
     </div>
 

@@ -140,3 +140,33 @@ p strong {
         font-size: 1.8rem;
     }
 }
+
+.preview-container, #previewArea {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-height: 100px;
+}
+
+.preview-item {
+    display: inline-block;
+    margin: 8px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.preview-item img {
+    max-width: 180px;
+    max-height: 180px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    object-fit: cover;
+}
+
+.preview-item small {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
