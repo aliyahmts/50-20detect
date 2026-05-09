@@ -3,20 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <title>Philippine Peso Bill Detector</title>
     <link rel="stylesheet" href="/static/style.css">
-    
-    <title>Main</title>
 </head>
 <body>
- <h1>20/50 Peso Bill Detector</h1>
-    
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" accept="image/*">
-        <button type="submit">Detect Bills</button>
-    </form>
+    <div class="container">
+        <h1>New 50/20 Peso Bill Detector</h1>
 
-    <div id="results"></div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab(0)">Image Detection</button>
+            <button class="tab-btn" onclick="showTab(1)">Video Processing</button>
+            <button class="tab-btn" onclick="showTab(2)">Live Webcam</button>
+        </div>
+
+        <!-- Image Tab -->
+        <div id="tab0" class="tab-content">
+            <input type="file" id="imageInput" accept="image/*">
+            <button onclick="uploadImage()">Detect Bills</button>
+            <div id="imageResult" class="result"></div>
+        </div>
+
+        <!-- Video Tab -->
+        <div id="tab1" class="tab-content" style="display: none;">
+            <input type="file" id="videoInput" accept="video/*">
+            <button onclick="uploadVideo()">Process Video</button>
+            <div id="videoResult" class="result"></div>
+        </div>
+
+        <!-- Live Webcam Tab -->
+        <div id="tab2" class="tab-content" style="display: none;">
+            <div class="stream-container">
+                <img id="webcamStream" src="" alt="Live Detection">
+            </div>
+            <p><strong>Live Detection Active</strong> • Point your camera at the bills</p>
+        </div>
+    </div>
 
     <script src="/static/script.js"></script>
 </body>
