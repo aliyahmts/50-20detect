@@ -8,7 +8,7 @@ import tempfile
 
 st.set_page_config(page_title="New 50/20 Peso Bill Detector", layout="centered")
 
-st.title("N50/20 Peso Bill Detector")
+st.title("50/20 Peso Bill Detector")
 
 # ========================= MODEL LOADING =========================
 @st.cache_resource(show_spinner="Loading YOLO Model...")
