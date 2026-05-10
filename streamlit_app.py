@@ -51,7 +51,7 @@ def process_frame(frame):
     return annotated
 
 # ========================= TABS =========================
-tab1, tab2, tab3 = st.tabs(["📸 Image Detection", "🎥 Video Processing", "📹 Live Webcam"])
+tab1, tab2, tab3 = st.tabs(["Image Detection", "Video Processing", "Live Webcam"])
 
 # ======================== IMAGE TAB ========================
 with tab1:
