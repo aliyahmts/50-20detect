@@ -27,7 +27,7 @@ def load_model():
 
 model = load_model()
 labels = model.names
-CONFIDENCE_THRESHOLD = 0.83
+CONFIDENCE_THRESHOLD = 0.65
 
 def is_valid_bill(class_name):
     return class_name in ["new_50peso_bill", "new_20peso_bill"]
@@ -36,6 +36,8 @@ def is_valid_bill(class_name):
 def process_frame(frame):
     results = model(frame, verbose=False, conf=CONFIDENCE_THRESHOLD)
     annotated = frame.copy()
+    
+    print(f"Detected {len(results[0].boxes)} objects")
     
     for box in results[0].boxes:
         class_name = labels[int(box.cls.item())]
@@ -119,9 +121,9 @@ with tab2:
         st.video(uploaded_video)
         
         if st.button("Process Video", type="primary"):
-            with st.spinner("Processing video... (This may take some time)"):
+            with st.spinner("Processing video... This may take a while"):
                 try:
-                    # Save uploaded video to temp file
+                    # Save uploaded video
                     tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
                     tfile.write(uploaded_video.getbuffer())
                     tfile.close()
@@ -130,22 +132,30 @@ with tab2:
                     fps = int(cap.get(cv2.CAP_PROP_FPS)) or 30
                     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
                     output_path = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4').name
                     out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
 
                     total_50 = total_20 = 0
                     frame_count = 0
+                    FRAME_SKIP = 6  # Change to 3-8 depending on video length/speed
+
+                    progress_bar = st.progress(0)
 
                     while True:
                         ret, frame = cap.read()
                         if not ret:
                             break
                         
+                        frame_count += 1
+                        
+                        # Process every frame for smooth annotated video
                         annotated = process_frame(frame)
                         out.write(annotated)
                         
-                        if frame_count == 0:  # Count from first frame
+                        # Count on selected frames only
+                        if frame_count % FRAME_SKIP == 0:
                             results = model(frame, verbose=False, conf=CONFIDENCE_THRESHOLD)
                             for box in results[0].boxes:
                                 class_name = labels[int(box.cls.item())]
@@ -154,24 +164,36 @@ with tab2:
                                         total_50 += 1
                                     else:
                                         total_20 += 1
-                        frame_count += 1
+                        
+                        if total_frames > 0:
+                            progress_bar.progress(min(1.0, frame_count / total_frames))
 
                     cap.release()
                     out.release()
 
+                    # Simple deduplication (each bill likely appears in many frames)
+                    total_50 = max(0, total_50 // (FRAME_SKIP * 2))
+                    total_20 = max(0, total_20 // (FRAME_SKIP * 2))
+
                     total_value = (total_50 * 50) + (total_20 * 20)
 
                     st.success("Video processed successfully!")
-                    st.metric("Total Value", f"PHP {total_value}")
-                    st.write(f"**50 Peso:** {total_50} | **20 Peso:** {total_20}")
+                    st.metric("**Total Value**", f"PHP {total_value:,}")
+                    st.write(f"**50 Peso Bills:** {total_50}  **20 Peso Bills:** {total_20}")
 
-                    # Show processed video
+                    # Show output video
                     with open(output_path, "rb") as f:
                         st.video(f.read())
 
+                    # Cleanup temp files
+                    for path in [tfile.name, output_path]:
+                        try:
+                            os.unlink(path)
+                        except:
+                            pass
+
                 except Exception as e:
                     st.error(f"Error processing video: {str(e)}")
-
 # ======================== WEBCAM TAB ========================
 with tab3:
     st.subheader("Live Webcam")
