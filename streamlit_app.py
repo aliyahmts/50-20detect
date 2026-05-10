@@ -76,7 +76,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("50/20 Peso Bill Detector")
+st.title("Beauty is in the Eye of the Detector")
 
 # ========================= MODEL LOADING =========================
 @st.cache_resource(show_spinner="Loading YOLO Model...")
