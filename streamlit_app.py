@@ -6,11 +6,75 @@ from PIL import Image
 import os
 import tempfile
 
-st.set_page_config(page_title="New 50/20 Peso Bill Detector", layout="centered")
+st.set_page_config(page_title="Philippine Peso Bill Detector", layout="centered", page_icon="🇵🇭")
 
-# Inject local CSS from static/style.css
-with open("static/style.css", "r", encoding="utf-8") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# ==================== CSS TO MATCH FLASK DESIGN ====================
+st.markdown("""
+    <style>
+        /* Overall Background */
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        /* Gradient Header - Darker for better visibility */
+        header[data-testid="stHeader"] {
+            background: linear-gradient(90deg, #2c3e50, #1e5799) !important;
+        }
+
+        /* Title - White with Shadow for Maximum Visibility */
+        .stApp h1 {
+            color: white !important;
+            text-align: center;
+            font-size: 2.35rem;
+            font-weight: 700;
+            padding: 20px 0 15px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        /* Main Content Area */
+        .main .block-container {
+            max-width: 900px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            padding: 0 !important;
+            margin: 30px auto;
+            overflow: hidden;
+        }
+
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background: white !important;
+            color: #2c3e50 !important;
+            border-bottom: 4px solid #3498db !important;
+        }
+
+        /* Buttons */
+        .stButton > button {
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            height: 52px;
+            font-size: 1.1rem;
+        }
+
+        .stFileUploader > div > div {
+            border: 2px dashed #2c3e50;
+            border-radius: 12px;
+        }
+
+        img, video {
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 st.title("50/20 Peso Bill Detector")
 
