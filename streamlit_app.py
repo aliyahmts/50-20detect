@@ -8,6 +8,10 @@ import tempfile
 
 st.set_page_config(page_title="New 50/20 Peso Bill Detector", layout="centered")
 
+# Inject local CSS from static/style.css
+with open("static/style.css", "r", encoding="utf-8") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 st.title("50/20 Peso Bill Detector")
 
 # ========================= MODEL LOADING =========================
@@ -38,7 +42,7 @@ def process_frame(frame):
     annotated = frame.copy()
     
     print(f"Detected {len(results[0].boxes)} objects")
-    
+
     for box in results[0].boxes:
         class_name = labels[int(box.cls.item())]
         conf = box.conf.item()
